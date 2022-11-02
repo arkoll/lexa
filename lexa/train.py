@@ -144,7 +144,7 @@ def main(logdir, config):
     if not config.training:
         continue
     print('Start training.')
-    state = tools.simulate(agent, train_envs, config.eval_every, state=state)
+    state = tools.simulate(agent, train_envs, config.eval_every, state=state, profile=True)
     agent.save(logdir / 'variables.pkl')
   for env in train_envs + eval_envs:
     try:

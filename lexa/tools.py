@@ -209,7 +209,7 @@ def log_eval_metrics(logger, log_prefix, eval_dir, num_eval_eps):
         logger.scalar(log_prefix + 'avg/'+ key, _avg)
     logger.write()
 
-def simulate(agent, envs, steps=0, episodes=0, state=None):
+def simulate(agent, envs, steps=0, episodes=0, state=None, profile=False):
   # Initialize or unpack simulation state.
   if state is None:
     step, episode = 0, 0
@@ -236,7 +236,12 @@ def simulate(agent, envs, steps=0, episodes=0, state=None):
     # Step agents.
     obs = {k: np.stack([o[k] for o in obs]) for k in obs[0]}
     #action, agent_state = agent(obs, done, agent_state)
-    agent_out = agent(obs, done, agent_state)
+    if profile:
+      with tf.profiler.experimental.Trace('train', step_num=agent._step.numpy().item(), _r=1):
+        agent_out = agent(obs, done, agent_state)
+    else:
+      agent_out = agent(obs, done, agent_state)
+
     if len(agent_out) ==2:
       action, agent_state = agent_out
     else:
