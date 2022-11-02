@@ -7,7 +7,6 @@ import resource
 import sys
 import warnings
 import pickle
-import time
 
 import numpy as np
 import ruamel.yaml as yaml
@@ -71,7 +70,6 @@ class Dreamer(tools.Module):
     self._train(next(self._dataset))
 
   def __call__(self, obs, reset, state=None, training=True):
-    prof_time = time.time()
     step = self._step.numpy().item()
     if self._should_reset(step):
       state = None
@@ -99,17 +97,15 @@ class Dreamer(tools.Module):
       self._step.assign_add(len(reset))
       self._logger.step = self._config.action_repeat \
           * self._step.numpy().item()
-      self._metrics['profile/__call__'].update_state(time.time()-prof_time)
       return action, state
 
     else:
       action, state, reward = self._policy(obs, state, training, reset)
-      self._metrics['profile/__call__'].update_state(time.time() - prof_time)
       return action, state, reward
 
   @tf.function
   def _policy(self, obs, state, training, reset, should_expl=False):
-    prof_time = time.time()
+
     obs = self._wm.preprocess(obs)
     feat, latent = self._wm.get_init_feat(
       obs, state, sample=self._config.collect_dyn_sample and not self._config.eval_state_mean)
@@ -144,10 +140,8 @@ class Dreamer(tools.Module):
     action = self._exploration(action, training)
     state = (latent, action)
     if training:
-      self._metrics['profile/_policy'].update_state(time.time() - prof_time)
       return action, state
     else:
-      self._metrics['profile/_policy'].update_state(time.time() - prof_time)
       return action, state, reward
 
   def _exploration(self, action, training):
@@ -172,28 +166,21 @@ class Dreamer(tools.Module):
 
   @tf.function
   def _train(self, data):
-    prof_time = time.time()
     metrics = {}
-    wm_time = time.time()
     embed, post, feat, kl, mets = self._wm.train(data)
-    wm_time = time.time() - wm_time
     metrics.update(mets)
     start = post
     assert not self._config.pred_discount
 
-    task_beh_time = time.time()
     if self._config.imag_on_policy:
       metrics.update(self._task_behavior.train(start, obs=data)[-1])
-    task_beh_time = time.time() - task_beh_time
 
     if self._config.gc_reward == 'dynamical_distance' and self._config.dd_train_off_policy:
       metrics.update(self._task_behavior.train_dd_off_policy(self._wm.encoder(self._wm.preprocess(data))))
 
-    exp_beh_time = time.time()
     if self._config.expl_behavior != 'greedy':
       mets = self._expl_behavior.train(start, feat, embed, kl)[-1]
       metrics.update({'expl_' + key: value for key, value in mets.items()})
-    exp_beh_time =time.time() - exp_beh_time
 
     if self._config.gcbc:
       _data = self._wm.preprocess(data)
@@ -203,10 +190,6 @@ class Dreamer(tools.Module):
     for name, value in metrics.items():
       self._metrics[name].update_state(value)
 
-    self._metrics['profile/_train'].update_state(time.time() - prof_time)
-    self._metrics['profile/_train/wm'].update_state(wm_time)
-    self._metrics['profile/_train/task_beh'].update_state(task_beh_time)
-    self._metrics['profile/_train/expl_beh'].update_state(exp_beh_time)
     return start, feat
 
 def count_steps(folder):
