@@ -7,6 +7,7 @@ import pickle
 import pathlib
 import off_policy
 from dreamer import Dreamer, setup_dreamer, create_envs, count_steps, make_dataset, parse_dreamer_args
+import wandb
 
 
 class GCDreamer(Dreamer):
@@ -154,4 +155,7 @@ def main(logdir, config):
 
 if __name__ == '__main__':
   args, remaining = parse_dreamer_args()
+  wandb.tensorboard.patch(root_logdir=args.logdir)
+  run = wandb.init(config=remaining)
   main(args.logdir, remaining)
+  run.finish()
