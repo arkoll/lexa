@@ -157,7 +157,8 @@ def main(logdir, config):
 if __name__ == '__main__':
   args, remaining = parse_dreamer_args()
   wandb.tensorboard.patch(root_logdir=args.logdir)
+  tf.profiler.experimental.start(args.logdir)
   run = wandb.init(config=remaining)
-  with tf.profiler.experimental.Profile(args.logdir):
-    main(args.logdir, remaining)
+  main(args.logdir, remaining)
+  tf.profiler.experimental.stop()
   run.finish()
