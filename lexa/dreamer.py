@@ -43,8 +43,6 @@ class Dreamer(tools.Module):
         config.expl_until / config.action_repeat))
     self._metrics = collections.defaultdict(tf.metrics.Mean)
     self._mean_metrics = tf.keras.metrics.MeanTensor()
-    self._max_state = None
-    self._min_state = None
     self._should_res_met = True
 
     with tf.device('cpu:0'):
