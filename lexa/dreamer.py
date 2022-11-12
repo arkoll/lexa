@@ -43,8 +43,8 @@ class Dreamer(tools.Module):
         config.expl_until / config.action_repeat))
     self._metrics = collections.defaultdict(tf.metrics.Mean)
     self._mean_metrics = tf.keras.metrics.MeanTensor()
-    self._max_state = tf.constant([])
-    self._min_state = tf.constant([])
+    self._max_state = tf.constant([], dtype=tf.float16)
+    self._min_state = tf.constant([], dtype=tf.float16)
 
     with tf.device('cpu:0'):
       self._step = tf.Variable(count_steps(config.traindir), dtype=tf.int64)
