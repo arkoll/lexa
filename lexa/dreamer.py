@@ -42,6 +42,8 @@ class Dreamer(tools.Module):
     self._should_expl = tools.Until(int(
         config.expl_until / config.action_repeat))
     self._metrics = collections.defaultdict(tf.metrics.Mean)
+    self._mean_metrics = tf.keras.metrics.MeanTensor()
+
     with tf.device('cpu:0'):
       self._step = tf.Variable(count_steps(config.traindir), dtype=tf.int64)
     # Schedules.
@@ -88,6 +90,7 @@ class Dreamer(tools.Module):
         for name, mean in self._metrics.items():
           self._logger.scalar(name, float(mean.result()))
           mean.reset_states()
+        self._mean_metrics.reset_state()
         openl = self._wm.video_pred(next(self._dataset))
         self._logger.video('train_openl', openl)
         self._logger.write(fps=True)
@@ -110,6 +113,9 @@ class Dreamer(tools.Module):
     feat, latent = self._wm.get_init_feat(
       obs, state, sample=self._config.collect_dyn_sample and not self._config.eval_state_mean)
 
+    self._mean_metrics.update_state(feat)
+    metric_std = tf.keras.metrics.mean_squared_error(feat, self._mean_metrics.result())
+    self._metrics['feat_std'].update_state(metric_std)
     if not training:
       goal = self._wm.get_goal(obs, training=False)
       if self._config.offpolicy_opt:
