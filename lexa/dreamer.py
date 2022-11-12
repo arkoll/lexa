@@ -92,7 +92,6 @@ class Dreamer(tools.Module):
           self._logger.scalar(name, float(mean.result()))
           mean.reset_states()
         self._mean_metrics.reset_states()
-        self._should_res_met = True
         openl = self._wm.video_pred(next(self._dataset))
         self._logger.video('train_openl', openl)
         self._logger.write(fps=True)
@@ -118,15 +117,14 @@ class Dreamer(tools.Module):
     self._mean_metrics.update_state(feat)
     metric_std = tf.keras.metrics.mean_squared_error(feat, self._mean_metrics.result())
     self._metrics['feat_std'].update_state(metric_std)
-    with tf.init_scope():
-      if self._should_res_met:
-          self._max_state = tf.identity(feat)
-          self._min_state = tf.identity(feat)
-          self._should_res_met = False
-      self._max_state = tf.math.maximum(feat, self._max_state)
-      self._min_state = tf.math.minimum(feat, self._min_state)
-      metric_div = tf.keras.metrics.mean_squared_error(self._min_state, self._max_state)
-      self._metrics['feat_div'].update_state(metric_div)
+    if self._should_res_met:
+        self._max_state = tf.stop_gradient(tf.identity(feat))
+        self._min_state = tf.stop_gradient(tf.identity(feat))
+        self._should_res_met = False
+    self._max_state = tf.math.maximum(feat, self._max_state)
+    self._min_state = tf.math.minimum(feat, self._min_state)
+    metric_div = tf.keras.metrics.mean_squared_error(self._min_state, self._max_state)
+    self._metrics['feat_div'].update_state(metric_div)
     if not training:
       goal = self._wm.get_goal(obs, training=False)
       if self._config.offpolicy_opt:
