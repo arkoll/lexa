@@ -144,8 +144,12 @@ def main(logdir, config):
     if not config.training:
         continue
     print('Start training.')
-    # with tf.profiler.experimental.Trace('train_pro', step_num=agent._step.numpy().item(), _r=1):
+    logs = "logs/step_" + str(agent._step.numpy().item())
+    options = tf.profiler.experimental.ProfilerOptions(host_tracer_level = 3, python_tracer_level = 3, device_tracer_level = 1)
+
+    tf.profiler.experimental.start(logs, options=options)
     state = tools.simulate(agent, train_envs, config.eval_every, state=state)
+    tf.profiler.experimental.stop()
     agent.save(logdir / 'variables.pkl')
   for env in train_envs + eval_envs:
     try:
