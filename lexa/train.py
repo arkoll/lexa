@@ -145,7 +145,7 @@ def main(logdir, config):
         continue
     print('Start training.')
     logs = "logs/step_" + str(agent._step.numpy().item())
-    options = tf.profiler.experimental.ProfilerOptions(host_tracer_level = 3, python_tracer_level = 3, device_tracer_level = 1)
+    options = tf.profiler.experimental.ProfilerOptions(host_tracer_level = 3, python_tracer_level = 1, device_tracer_level = 1)
 
     tf.profiler.experimental.start(logs, options=options)
     state = tools.simulate(agent, train_envs, config.eval_every, state=state)

@@ -222,7 +222,7 @@ def simulate(agent, envs, steps=0, episodes=0, state=None):
   all_rewards = []
   #all_gt_rewards = []
   ep_data_lst= []
-  print('Initial: ', step, episode, done, length, obs, agent_state)
+  print('Initial: ', step, episode, done, length)
   while (steps and step < steps) or (episodes and episode < episodes):
     # Reset envs if necessary.
     if done.any():
@@ -269,7 +269,7 @@ def simulate(agent, envs, steps=0, episodes=0, state=None):
     length += 1
     step += (done * length).sum()
     length *= (1 - done)
-    print('Current: ', step, episode, done, length, obs, agent_state)
+    print('Current: ', step, episode, done, length)
   # Return new state to allow resuming the simulation.
   if len(ep_data_lst) > 0:
     return (step - steps, episode - episodes, done, length, obs, agent_state, ep_data_lst)
