@@ -6,7 +6,7 @@ defaults:
   offline_evaldir: ''
   seed: 0
   steps: 2e3
-  eval_every: 5e4
+  eval_every: 1000
   log_every: 1e4
   reset_every: 0
   gpu_growth: True
@@ -20,7 +20,7 @@ defaults:
   envs: 1
   action_repeat: 2
   time_limit: 1000
-  prefill: 1000
+  prefill: 500
   eval_noise: 0.0
   clip_rewards: 'identity'
   atari_grayscale: False
