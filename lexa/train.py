@@ -95,7 +95,7 @@ def main(logdir, config):
   print('Simulate agent.')
   train_dataset = make_dataset(train_eps, config)
   eval_dataset = iter(make_dataset(eval_eps, config))
-  agent = GCDreamer(config, logger, train_dataset)
+  # agent = GCDreamer(config, logger, train_dataset)
   if (logdir / 'variables.pkl').exists():
     agent.load(logdir / 'variables.pkl')
     agent._should_pretrain._once = False
@@ -120,8 +120,9 @@ def main(logdir, config):
       ep_data_across_goals = []
       for idx in range(num_goals):
         eval_envs[0].set_goal_idx(idx)
-        eval_policy = functools.partial(agent, training=False)
-        sim_out = tools.simulate(eval_policy, eval_envs, episodes=1)
+        # eval_policy = functools.partial(agent, training=False)
+        # sim_out = tools.simulate(eval_policy, eval_envs, episodes=1)
+        tools.simulate(random_agent, eval_envs, episodes=1)
         obs, eps_data = sim_out[4], sim_out[6]
 
         ep_data_across_goals.append(process_eps_data(eps_data))
@@ -136,7 +137,7 @@ def main(logdir, config):
       goals = np.stack(goals, 0)
       goals = np.repeat(goals, executions.shape[1], 1)
       gc_video = np.concatenate([goals, executions], -3)
-      agent._logger.video(f'eval_gc_policy', gc_video)
+      logger.video(f'eval_gc_policy', gc_video)
       logger.write()
 
     with pathlib.Path(logdir / ("distance_func_logs_trained_model/step_"+str(logger.step)+".pkl") ).open('wb') as f:
@@ -148,8 +149,8 @@ def main(logdir, config):
     if not config.training:
         continue
     print('Start training.')
-    state = tools.simulate(agent, train_envs, config.eval_every, state=state)
-    agent.save(logdir / 'variables.pkl')
+    state = tools.simulate(random_agent, train_envs, config.eval_every, state=state)
+    # agent.save(logdir / 'variables.pkl')
   for env in train_envs + eval_envs:
     try:
       env.close()
