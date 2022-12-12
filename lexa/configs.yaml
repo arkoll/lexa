@@ -5,9 +5,9 @@ defaults:
   offline_traindir: ''
   offline_evaldir: ''
   seed: 0
-  steps: 1e8
-  eval_every: 5e4
-  log_every: 1e4
+  steps: 2e4
+  eval_every: 1e3
+  log_every: 1e3
   reset_every: 0
   gpu_growth: True
   precision: 16
@@ -19,8 +19,8 @@ defaults:
   size: [64, 64]
   envs: 1
   action_repeat: 2
-  time_limit: 150
-  prefill: 2500
+  time_limit: 1000
+  prefill: 1000
   eval_noise: 0.0
   clip_rewards: 'identity'
   atari_grayscale: False
