@@ -122,7 +122,7 @@ def main(logdir, config):
         eval_envs[0].set_goal_idx(idx)
         # eval_policy = functools.partial(agent, training=False)
         # sim_out = tools.simulate(eval_policy, eval_envs, episodes=1)
-        tools.simulate(random_agent, eval_envs, episodes=1)
+        sim_out = tools.simulate(random_agent, eval_envs, episodes=1)
         obs, eps_data = sim_out[4], sim_out[6]
 
         ep_data_across_goals.append(process_eps_data(eps_data))
