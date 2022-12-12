@@ -84,23 +84,23 @@ def main(logdir, config):
   logdir, logger = setup_dreamer(config, logdir)
   eval_envs, eval_eps, train_envs, train_eps, acts = create_envs(config, logger)
 
-  prefill = max(0, config.prefill - count_steps(config.traindir))
-  print(f'Prefill dataset ({prefill} steps).')
+  # prefill = max(0, config.prefill - count_steps(config.traindir))
+  # print(f'Prefill dataset ({prefill} steps).')
   random_agent = lambda o, d, s: ([acts.sample() for _ in d], s)
-  tools.simulate(random_agent, train_envs, prefill)
-  if count_steps(config.evaldir) == 0:
-    tools.simulate(random_agent, eval_envs, episodes=1)
+  # tools.simulate(random_agent, train_envs, prefill)
+  # if count_steps(config.evaldir) == 0:
+  #   tools.simulate(random_agent, eval_envs, episodes=1)
   logger.step = config.action_repeat * count_steps(config.traindir)
 
-  print('Simulate agent.')
+  # print('Simulate agent.')
   train_dataset = make_dataset(train_eps, config)
-  eval_dataset = iter(make_dataset(eval_eps, config))
+  # eval_dataset = iter(make_dataset(eval_eps, config))
   agent = GCDreamer(config, logger, train_dataset)
-  if (logdir / 'variables.pkl').exists():
-    agent.load(logdir / 'variables.pkl')
-    agent._should_pretrain._once = False
-
-  pathlib.Path(logdir / "distance_func_logs_trained_model").mkdir(parents=True, exist_ok = True)
+  # if (logdir / 'variables.pkl').exists():
+  #   agent.load(logdir / 'variables.pkl')
+  #   agent._should_pretrain._once = False
+  #
+  # pathlib.Path(logdir / "distance_func_logs_trained_model").mkdir(parents=True, exist_ok = True)
 
   state = None
   assert len(eval_envs) == 1
@@ -108,7 +108,7 @@ def main(logdir, config):
   while epoch <= config.steps:
     print('Epoch: ', epoch)
     epoch += 1
-    logger.write()
+    # logger.write()
     # print('Start gc evaluation.')
     # executions = []
     # goals = []
