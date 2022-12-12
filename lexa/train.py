@@ -104,7 +104,10 @@ def main(logdir, config):
 
   state = None
   assert len(eval_envs) == 1
-  while agent._step.numpy().item() < config.steps:
+  epoch = 1
+  while epoch <= config.steps:
+    print('Epoch: ', epoch)
+    epoch += 1
     logger.write()
     print('Start gc evaluation.')
     executions = []
