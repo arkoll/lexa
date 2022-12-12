@@ -8,6 +8,7 @@ import pathlib
 import off_policy
 from dreamer import Dreamer, setup_dreamer, create_envs, count_steps, make_dataset, parse_dreamer_args
 import wandb
+import time
 
 
 class GCDreamer(Dreamer):
@@ -157,5 +158,8 @@ if __name__ == '__main__':
   args, remaining = parse_dreamer_args()
   wandb.tensorboard.patch(root_logdir=args.logdir)
   run = wandb.init(config=remaining)
+  start_time = time.time()
   main(args.logdir, remaining)
+  all_time = time.time() - start_time
+  run.summary["debug/total_time"] = all_time
   run.finish()
