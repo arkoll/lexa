@@ -109,43 +109,43 @@ def main(logdir, config):
     print('Epoch: ', epoch)
     epoch += 1
     logger.write()
-    print('Start gc evaluation.')
-    executions = []
-    goals = []
-    #rews_across_goals = []
-    num_goals = min(100, len(eval_envs[0].get_goals()))
-    all_eps_data = []
-    num_eval_eps = 1
-    for ep_idx in range(num_eval_eps):
-      ep_data_across_goals = []
-      for idx in range(num_goals):
-        eval_envs[0].set_goal_idx(idx)
-        # eval_policy = functools.partial(agent, training=False)
-        # sim_out = tools.simulate(eval_policy, eval_envs, episodes=1)
-        sim_out = tools.simulate(random_agent, eval_envs, episodes=1)
-        obs = sim_out[4]
-        # obs, eps_data = sim_out[4], sim_out[6]
-
-        # ep_data_across_goals.append(process_eps_data(eps_data))
-        video = eval_envs[0]._convert([t['image'] for t in eval_envs[0]._episode])
-        executions.append(video[None])
-        goals.append(obs[0]['image_goal'][None])
-
-      all_eps_data.append(ep_data_across_goals)
-
-    if ep_idx == 0:
-      executions = np.concatenate(executions, 0)
-      goals = np.stack(goals, 0)
-      goals = np.repeat(goals, executions.shape[1], 1)
-      gc_video = np.concatenate([goals, executions], -3)
-      logger.video(f'eval_gc_policy', gc_video)
-      logger.write()
-
-    with pathlib.Path(logdir / ("distance_func_logs_trained_model/step_"+str(logger.step)+".pkl") ).open('wb') as f:
-      pickle.dump(all_eps_data, f)
-
-    if config.sync_s3:
-      os.system('aws s3 sync '+str(logdir)+ ' s3://goalexp2021/research_code/goalexp_data/'+str(logdir))
+    # print('Start gc evaluation.')
+    # executions = []
+    # goals = []
+    # #rews_across_goals = []
+    # num_goals = min(100, len(eval_envs[0].get_goals()))
+    # all_eps_data = []
+    # num_eval_eps = 1
+    # for ep_idx in range(num_eval_eps):
+    #   ep_data_across_goals = []
+    #   for idx in range(num_goals):
+    #     eval_envs[0].set_goal_idx(idx)
+    #     # eval_policy = functools.partial(agent, training=False)
+    #     # sim_out = tools.simulate(eval_policy, eval_envs, episodes=1)
+    #     sim_out = tools.simulate(random_agent, eval_envs, episodes=1)
+    #     obs = sim_out[4]
+    #     # obs, eps_data = sim_out[4], sim_out[6]
+    #
+    #     # ep_data_across_goals.append(process_eps_data(eps_data))
+    #     video = eval_envs[0]._convert([t['image'] for t in eval_envs[0]._episode])
+    #     executions.append(video[None])
+    #     goals.append(obs[0]['image_goal'][None])
+    #
+    #   all_eps_data.append(ep_data_across_goals)
+    #
+    # if ep_idx == 0:
+    #   executions = np.concatenate(executions, 0)
+    #   goals = np.stack(goals, 0)
+    #   goals = np.repeat(goals, executions.shape[1], 1)
+    #   gc_video = np.concatenate([goals, executions], -3)
+    #   logger.video(f'eval_gc_policy', gc_video)
+    #   logger.write()
+    #
+    # with pathlib.Path(logdir / ("distance_func_logs_trained_model/step_"+str(logger.step)+".pkl") ).open('wb') as f:
+    #   pickle.dump(all_eps_data, f)
+    #
+    # if config.sync_s3:
+    #   os.system('aws s3 sync '+str(logdir)+ ' s3://goalexp2021/research_code/goalexp_data/'+str(logdir))
 
     if not config.training:
         continue
