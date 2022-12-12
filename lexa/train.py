@@ -95,7 +95,7 @@ def main(logdir, config):
   print('Simulate agent.')
   train_dataset = make_dataset(train_eps, config)
   eval_dataset = iter(make_dataset(eval_eps, config))
-  # agent = GCDreamer(config, logger, train_dataset)
+  agent = GCDreamer(config, logger, train_dataset)
   if (logdir / 'variables.pkl').exists():
     agent.load(logdir / 'variables.pkl')
     agent._should_pretrain._once = False
@@ -150,7 +150,7 @@ def main(logdir, config):
     if not config.training:
         continue
     print('Start training.')
-    state = tools.simulate(random_agent, train_envs, config.eval_every, state=state)
+    state = tools.simulate(agent, train_envs, config.eval_every, state=state)
     # agent.save(logdir / 'variables.pkl')
   for env in train_envs + eval_envs:
     try:
