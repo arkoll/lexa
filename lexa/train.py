@@ -87,7 +87,7 @@ def main(logdir, config):
   # prefill = max(0, config.prefill - count_steps(config.traindir))
   # print(f'Prefill dataset ({prefill} steps).')
   random_agent = lambda o, d, s: ([acts.sample() for _ in d], s)
-  # tools.simulate(random_agent, train_envs, prefill)
+  tools.simulate(random_agent, train_envs, prefill)
   # if count_steps(config.evaldir) == 0:
   #   tools.simulate(random_agent, eval_envs, episodes=1)
   logger.step = config.action_repeat * count_steps(config.traindir)
