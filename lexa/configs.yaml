@@ -5,7 +5,7 @@ defaults:
   offline_traindir: ''
   offline_evaldir: ''
   seed: 0
-  steps: 2e4
+  steps: 10
   eval_every: 1e3
   log_every: 1e3
   reset_every: 0
