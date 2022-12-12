@@ -84,8 +84,8 @@ def main(logdir, config):
   logdir, logger = setup_dreamer(config, logdir)
   eval_envs, eval_eps, train_envs, train_eps, acts = create_envs(config, logger)
 
-  # prefill = max(0, config.prefill - count_steps(config.traindir))
-  # print(f'Prefill dataset ({prefill} steps).')
+  prefill = max(0, config.prefill - count_steps(config.traindir))
+  print(f'Prefill dataset ({prefill} steps).')
   random_agent = lambda o, d, s: ([acts.sample() for _ in d], s)
   tools.simulate(random_agent, train_envs, prefill)
   # if count_steps(config.evaldir) == 0:
