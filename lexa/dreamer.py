@@ -70,7 +70,6 @@ class Dreamer(tools.Module):
     self._train(next(self._dataset))
 
   def __call__(self, obs, reset, state=None, training=True):
-    training = False
     step = self._step.numpy().item()
     if self._should_reset(step):
       state = None
@@ -81,9 +80,9 @@ class Dreamer(tools.Module):
       steps = (
           self._config.pretrain if self._should_pretrain()
           else self._config.train_steps)
-      for _ in range(steps):
-        _data = next(self._dataset)
-        start, feat = self._train(_data)
+      # for _ in range(steps):
+      #   _data = next(self._dataset)
+      #   start, feat = self._train(_data)
 
       if self._should_log(step):
         for name, mean in self._metrics.items():
@@ -102,7 +101,7 @@ class Dreamer(tools.Module):
 
     else:
       action, state, reward = self._policy(obs, state, training, reset)
-      return action, state
+      return action, state, reward
 
   @tf.function
   def _policy(self, obs, state, training, reset, should_expl=False):
