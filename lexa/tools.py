@@ -209,7 +209,7 @@ def log_eval_metrics(logger, log_prefix, eval_dir, num_eval_eps):
         logger.scalar(log_prefix + 'avg/'+ key, _avg)
     logger.write()
 
-def simulate(agent, envs, steps=0, episodes=0, state=None):
+def simulate(agent, envs, steps=0, episodes=0, state=None, wb_logger=None, start_step=None):
   # Initialize or unpack simulation state.
   if state is None:
     step, episode = 0, 0
@@ -236,7 +236,11 @@ def simulate(agent, envs, steps=0, episodes=0, state=None):
     # Step agents.
     obs = {k: np.stack([o[k] for o in obs]) for k in obs[0]}
     #action, agent_state = agent(obs, done, agent_state)
+    agent_time = time.time()
     agent_out = agent(obs, done, agent_state)
+    agent_time = time.time() - agent_time
+    start_step += 1
+    wb_logger.log({'agent_time': agent_time}, step=start_step)
     if len(agent_out) ==2:
       action, agent_state = agent_out
     else:
@@ -269,9 +273,9 @@ def simulate(agent, envs, steps=0, episodes=0, state=None):
     length *= (1 - done)
   # Return new state to allow resuming the simulation.
   if len(ep_data_lst) > 0:
-    return (step - steps, episode - episodes, done, length, obs, agent_state, ep_data_lst)
+    return start_step, (step - steps, episode - episodes, done, length, obs, agent_state, ep_data_lst)
   else:
-    return (step - steps, episode - episodes, done, length, obs, agent_state)
+    return start_step, (step - steps, episode - episodes, done, length, obs, agent_state)
 
 
 def save_episodes(directory, episodes):

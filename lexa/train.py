@@ -112,6 +112,7 @@ def main(logdir, config):
   state = None
   assert len(eval_envs) == 1
   epoch = 1
+  train_step = 0
   while epoch <= config.steps:
     print('Epoch: ', epoch)
     # logger.write()
@@ -157,9 +158,9 @@ def main(logdir, config):
     #     continue
     print('Start training.')
     train_time = time.time()
-    state = tools.simulate(agent, train_envs, config.eval_every, state=state)
+    train_step, state = tools.simulate(agent, train_envs, config.eval_every, state=state, wb_logger=wb_logger, start_step=train_step)
     train_time = time.time() - train_time
-    wb_logger.log({'train_time': train_time, 'train_steps': config.eval_every}, step = epoch)
+    wb_logger.log({'train_time': train_time, 'train_steps': config.eval_every, 'epoch': epoch}, step = train_step)
     epoch += 1
     # agent.save(logdir / 'variables.pkl')
   wb_logger.finish()
