@@ -76,21 +76,21 @@ class Dreamer(tools.Module):
     if state is not None and reset.any():
       mask = tf.cast(1 - reset, self._float)[:, None]
       state = tf.nest.map_structure(lambda x: x * mask, state)
-    # if training and self._should_train(step):
-    #   steps = (
-    #       self._config.pretrain if self._should_pretrain()
-    #       else self._config.train_steps)
-    #   # for _ in range(steps):
-    #   #   _data = next(self._dataset)
-    #   #   start, feat = self._train(_data)
-    #
-    #   if self._should_log(step):
-    #     for name, mean in self._metrics.items():
-    #       self._logger.scalar(name, float(mean.result()))
-    #       mean.reset_states()
-    #     openl = self._wm.video_pred(next(self._dataset))
-    #     self._logger.video('train_openl', openl)
-    #     self._logger.write(fps=True)
+    if training and self._should_train(step):
+      steps = (
+          self._config.pretrain if self._should_pretrain()
+          else self._config.train_steps)
+      for _ in range(steps):
+        _data = next(self._dataset)
+        start, feat = self._train(_data)
+
+      if self._should_log(step):
+        for name, mean in self._metrics.items():
+          self._logger.scalar(name, float(mean.result()))
+          mean.reset_states()
+        openl = self._wm.video_pred(next(self._dataset))
+        self._logger.video('train_openl', openl)
+        self._logger.write(fps=True)
 
     if training:
       action, state = self._policy(obs, state, training, reset)
@@ -172,20 +172,20 @@ class Dreamer(tools.Module):
     start = post
     assert not self._config.pred_discount
 
-    if self._config.imag_on_policy:
-      metrics.update(self._task_behavior.train(start, obs=data)[-1])
-
-    if self._config.gc_reward == 'dynamical_distance' and self._config.dd_train_off_policy:
-      metrics.update(self._task_behavior.train_dd_off_policy(self._wm.encoder(self._wm.preprocess(data))))
-
-    if self._config.expl_behavior != 'greedy':
-      mets = self._expl_behavior.train(start, feat, embed, kl)[-1]
-      metrics.update({'expl_' + key: value for key, value in mets.items()})
-
-    if self._config.gcbc:
-      _data = self._wm.preprocess(data)
-      obs = self._wm.encoder(self._wm.preprocess(data)) if self._config.offpolicy_use_embed else _data['image']
-      metrics.update(self._off_policy_handler.train_gcbc(obs, _data['action']))
+    # if self._config.imag_on_policy:
+    #   metrics.update(self._task_behavior.train(start, obs=data)[-1])
+    #
+    # if self._config.gc_reward == 'dynamical_distance' and self._config.dd_train_off_policy:
+    #   metrics.update(self._task_behavior.train_dd_off_policy(self._wm.encoder(self._wm.preprocess(data))))
+    #
+    # if self._config.expl_behavior != 'greedy':
+    #   mets = self._expl_behavior.train(start, feat, embed, kl)[-1]
+    #   metrics.update({'expl_' + key: value for key, value in mets.items()})
+    #
+    # if self._config.gcbc:
+    #   _data = self._wm.preprocess(data)
+    #   obs = self._wm.encoder(self._wm.preprocess(data)) if self._config.offpolicy_use_embed else _data['image']
+    #   metrics.update(self._off_policy_handler.train_gcbc(obs, _data['action']))
 
     for name, value in metrics.items():
       self._metrics[name].update_state(value)
