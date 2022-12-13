@@ -70,6 +70,7 @@ class Dreamer(tools.Module):
     self._train(next(self._dataset))
 
   def __call__(self, obs, reset, state=None, training=True):
+    training = False
     step = self._step.numpy().item()
     if self._should_reset(step):
       state = None
