@@ -81,6 +81,11 @@ def process_eps_data(eps_data):
   return new_data
 
 def main(logdir, config):
+  # wandb
+  wb_logger = wandb.init(project='lexa_debug', config=config)
+
+  # init part
+  start_init_part = time.time()
   logdir, logger = setup_dreamer(config, logdir)
   eval_envs, eval_eps, train_envs, train_eps, acts = create_envs(config, logger)
 
@@ -101,6 +106,8 @@ def main(logdir, config):
   #   agent._should_pretrain._once = False
   #
   # pathlib.Path(logdir / "distance_func_logs_trained_model").mkdir(parents=True, exist_ok = True)
+  end_init_part = time.time()
+  wb_logger.summary['init_time'] = end_init_part - start_init_part
 
   state = None
   assert len(eval_envs) == 1
@@ -146,11 +153,14 @@ def main(logdir, config):
     #
     # if config.sync_s3:
     #   os.system('aws s3 sync '+str(logdir)+ ' s3://goalexp2021/research_code/goalexp_data/'+str(logdir))
-
-    if not config.training:
-        continue
+    #
+    # if not config.training:
+    #     continue
     print('Start training.')
+    train_time = time.time()
     state = tools.simulate(agent, train_envs, config.eval_every, state=state)
+    train_time = time.time() - train_time
+    wb_logger.log({'train_time': train_time, 'train_steps': config.eval_every}, step = epoch)
     # agent.save(logdir / 'variables.pkl')
   for env in train_envs + eval_envs:
     try:
@@ -161,10 +171,4 @@ def main(logdir, config):
 
 if __name__ == '__main__':
   args, remaining = parse_dreamer_args()
-  wandb.tensorboard.patch(root_logdir=args.logdir)
-  run = wandb.init(config=remaining)
-  start_time = time.time()
   main(args.logdir, remaining)
-  all_time = time.time() - start_time
-  run.summary["debug/total_time"] = all_time
-  run.finish()
