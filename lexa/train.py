@@ -162,6 +162,7 @@ def main(logdir, config):
     train_time = time.time() - train_time
     wb_logger.log({'train_time': train_time, 'train_steps': config.eval_every}, step = epoch)
     # agent.save(logdir / 'variables.pkl')
+  wb_logger.finish()
   for env in train_envs + eval_envs:
     try:
       env.close()
