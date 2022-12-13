@@ -114,7 +114,6 @@ def main(logdir, config):
   epoch = 1
   while epoch <= config.steps:
     print('Epoch: ', epoch)
-    epoch += 1
     # logger.write()
     # print('Start gc evaluation.')
     # executions = []
@@ -161,6 +160,7 @@ def main(logdir, config):
     state = tools.simulate(agent, train_envs, config.eval_every, state=state)
     train_time = time.time() - train_time
     wb_logger.log({'train_time': train_time, 'train_steps': config.eval_every}, step = epoch)
+    epoch += 1
     # agent.save(logdir / 'variables.pkl')
   wb_logger.finish()
   for env in train_envs + eval_envs:
