@@ -211,8 +211,6 @@ def log_eval_metrics(logger, log_prefix, eval_dir, num_eval_eps):
     logger.write()
 
 def simulate(agent, envs, steps=0, episodes=0, state=None, wb_logger=None, start_step=None):
-  columns = ['train_step', 'agent_time']
-  metrics_table = wandb.Table(columns=columns)
   # Initialize or unpack simulation state.
   if state is None:
     step, episode = 0, 0
@@ -244,7 +242,6 @@ def simulate(agent, envs, steps=0, episodes=0, state=None, wb_logger=None, start
     agent_time = time.time() - agent_time
     if wb_logger:
       start_step += 1
-      metrics_table.add_data(start_step, agent_time)
       wb_logger.log({'agent_time': agent_time}, step=start_step)
     if len(agent_out) ==2:
       action, agent_state = agent_out
@@ -277,8 +274,6 @@ def simulate(agent, envs, steps=0, episodes=0, state=None, wb_logger=None, start
     step += (done * length).sum()
     length *= (1 - done)
   # Return new state to allow resuming the simulation.
-  if wb_logger:
-    wb_logger.log({'time_metrics': metrics_table}, step=start_step)
   if len(ep_data_lst) > 0:
     return start_step, (step - steps, episode - episodes, done, length, obs, agent_state, ep_data_lst)
   else:
