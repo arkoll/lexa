@@ -100,7 +100,7 @@ def main(logdir, config):
   # print('Simulate agent.')
   train_dataset = make_dataset(train_eps, config)
   # eval_dataset = iter(make_dataset(eval_eps, config))
-  # agent = GCDreamer(config, logger, train_dataset)
+  agent = GCDreamer(config, logger, train_dataset)
   # if (logdir / 'variables.pkl').exists():
   #   agent.load(logdir / 'variables.pkl')
   #   agent._should_pretrain._once = False
@@ -158,7 +158,7 @@ def main(logdir, config):
     #     continue
     print('Start training.')
     train_time = time.time()
-    train_step, state = tools.simulate(random_agent, train_envs, config.eval_every, state=state, wb_logger=wb_logger, start_step=train_step)
+    train_step, state = tools.simulate(agent, train_envs, config.eval_every, state=state, wb_logger=wb_logger, start_step=train_step)
     train_time = time.time() - train_time
     wb_logger.log({'train_time': train_time, 'train_steps': config.eval_every, 'epoch': epoch}, step = train_step)
     epoch += 1
