@@ -102,7 +102,7 @@ class Dreamer(tools.Module):
 
     else:
       action, state, reward = self._policy(obs, state, training, reset)
-      return action, state, reward
+      return action, state
 
   @tf.function
   def _policy(self, obs, state, training, reset, should_expl=False):
