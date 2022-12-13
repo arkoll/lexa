@@ -20,7 +20,7 @@ defaults:
   envs: 1
   action_repeat: 2
   time_limit: 1000
-  prefill: 1000
+  prefill: 500
   eval_noise: 0.0
   clip_rewards: 'identity'
   atari_grayscale: False

@@ -244,7 +244,7 @@ def simulate(agent, envs, steps=0, episodes=0, state=None, wb_logger=None, start
     agent_time = time.time() - agent_time
     if wb_logger:
       start_step += 1
-      metrics_table.add_data(start_step, agent_timet)
+      metrics_table.add_data(start_step, agent_time)
       wb_logger.log({'agent_time': agent_time}, step=start_step)
     if len(agent_out) ==2:
       action, agent_state = agent_out
