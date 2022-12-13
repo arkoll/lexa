@@ -76,21 +76,21 @@ class Dreamer(tools.Module):
     if state is not None and reset.any():
       mask = tf.cast(1 - reset, self._float)[:, None]
       state = tf.nest.map_structure(lambda x: x * mask, state)
-    if training and self._should_train(step):
-      steps = (
-          self._config.pretrain if self._should_pretrain()
-          else self._config.train_steps)
-      # for _ in range(steps):
-      #   _data = next(self._dataset)
-      #   start, feat = self._train(_data)
-
-      if self._should_log(step):
-        for name, mean in self._metrics.items():
-          self._logger.scalar(name, float(mean.result()))
-          mean.reset_states()
-        openl = self._wm.video_pred(next(self._dataset))
-        self._logger.video('train_openl', openl)
-        self._logger.write(fps=True)
+    # if training and self._should_train(step):
+    #   steps = (
+    #       self._config.pretrain if self._should_pretrain()
+    #       else self._config.train_steps)
+    #   # for _ in range(steps):
+    #   #   _data = next(self._dataset)
+    #   #   start, feat = self._train(_data)
+    #
+    #   if self._should_log(step):
+    #     for name, mean in self._metrics.items():
+    #       self._logger.scalar(name, float(mean.result()))
+    #       mean.reset_states()
+    #     openl = self._wm.video_pred(next(self._dataset))
+    #     self._logger.video('train_openl', openl)
+    #     self._logger.write(fps=True)
 
     if training:
       action, state = self._policy(obs, state, training, reset)
