@@ -275,7 +275,8 @@ def simulate(agent, envs, steps=0, episodes=0, state=None, wb_logger=None, start
     step += (done * length).sum()
     length *= (1 - done)
   # Return new state to allow resuming the simulation.
-  wb_logger.log(data_metrics, step=start_step)
+  if wb_logger:
+    wb_logger.log(data_metrics, step=start_step)
   if len(ep_data_lst) > 0:
     return start_step, (step - steps, episode - episodes, done, length, obs, agent_state, ep_data_lst)
   else:
